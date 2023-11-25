@@ -15,6 +15,7 @@ import (
 
 const savetxt = "./soildDate.txt"
 const last_water_point_setting = "./last_water_point_setting.txt"
+const logfile = "./log.txt"
 
 var iflog = false
 
@@ -141,7 +142,7 @@ func msg(w http.ResponseWriter, req *http.Request) {
 
 			if logtxt != "" {
 				// 打开文件，如果文件不存在则创建它
-				file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+				file, err := os.OpenFile(logfile, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 				if err != nil {
 					fmt.Println("无法创建文件:", err)
 					return
@@ -211,6 +212,8 @@ func msgfromcontral(w http.ResponseWriter, req *http.Request) {
 }
 func maint() {
 	// 检查文件是否存在
+
+	createFile(logfile)
 	createFile(savetxt)
 	createFile(last_water_point_setting)
 	ss, err := readFileAsString(last_water_point_setting)
