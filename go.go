@@ -16,6 +16,8 @@ import (
 const savetxt = "./soildDate.txt"
 const last_water_point_setting = "./last_water_point_setting.txt"
 
+var iflog = false
+
 type soildsetting struct {
 	setting  string
 	mutex    sync.Mutex
@@ -125,37 +127,42 @@ func msg(w http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(w, resstring)
 		break
 	case "8":
-		logtxt := req.Form["logmsg"][0]
+		if iflog {
 
-		decodedBytes, err := base64.StdEncoding.DecodeString(logtxt)
-		if err != nil {
-			fmt.Println("Error decoding Base64:", err)
-			return
-		}
+			logtxt := req.Form["logmsg"][0]
 
-		logtxt = string(decodedBytes)
-
-		if logtxt != "" {
-			// 打开文件，如果文件不存在则创建它
-			file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+			decodedBytes, err := base64.StdEncoding.DecodeString(logtxt)
 			if err != nil {
-				fmt.Println("无法创建文件:", err)
+				fmt.Println("Error decoding Base64:", err)
 				return
 			}
-			defer file.Close()
-			logtxt = logtxt + " " + timeStr + "\n"
-			// 写入数据到文件
 
-			//写入文件时，使用带缓存的 *Writer
-			write := bufio.NewWriter(file)
-			write.WriteString(logtxt)
-			write.Flush()
-			if err != nil {
-				fmt.Println("无法写入文件:", err)
-				return
+			logtxt = string(decodedBytes)
+
+			if logtxt != "" {
+				// 打开文件，如果文件不存在则创建它
+				file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+				if err != nil {
+					fmt.Println("无法创建文件:", err)
+					return
+				}
+				defer file.Close()
+				logtxt = logtxt + " " + timeStr + "\n"
+				// 写入数据到文件
+
+				//写入文件时，使用带缓存的 *Writer
+				write := bufio.NewWriter(file)
+				write.WriteString(logtxt)
+				write.Flush()
+				if err != nil {
+					fmt.Println("无法写入文件:", err)
+					return
+				}
 			}
 		}
-
+		break
+	case "9":
+		iflog = !iflog
 		break
 	}
 	if savingstirng != "" {
