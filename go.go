@@ -14,6 +14,7 @@ import (
 )
 
 const savetxt = "./soildDate.txt"
+const last_water_point_setting = "./last_water_point_setting.txt"
 
 type soildsetting struct {
 	setting  string
@@ -180,6 +181,7 @@ func msgfromcontral(w http.ResponseWriter, req *http.Request) {
 	case "0":
 		soildsett.set(req.Form["setmsg"][0])
 		savingstirng = "get_new_setting:" + req.Form["setmsg"][0]
+		writeToFile(last_water_point_setting, req.Form["setmsg"][0])
 		break
 	case "1":
 		break
@@ -201,16 +203,13 @@ func msgfromcontral(w http.ResponseWriter, req *http.Request) {
 
 }
 func maint() {
-
-	_, err := os.Stat(savetxt)
-	if err != nil {
-		_, err = os.Create(savetxt)
-		if err != nil {
-			fmt.Println("存储文件创建失败")
-			return
-		}
+	// 检查文件是否存在
+	createFile(savetxt)
+	createFile(last_water_point_setting)
+	ss, err := readFileAsString(last_water_point_setting)
+	if ss == "" || err != nil {
+		soildsett.set("6000@5000@600000@60000@2000@")
 	}
-	soildsett.set("6000@5000@600000@60000@2000@")
 	http.HandleFunc("/soild", soild_date)
 	http.HandleFunc("/info", msg)
 	http.HandleFunc("/contral", msgfromcontral)
@@ -229,5 +228,40 @@ func (s *programlinux) Start(c service.Service) error {
 
 func (s *programlinux) Stop(c service.Service) error {
 
+	return nil
+}
+
+func createFile(filename string) error {
+	// 检查文件是否存在
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		// 文件不存在，创建文件
+		file, err := os.Create(filename)
+		if err != nil {
+			return err
+		}
+		// 关闭文件
+		defer file.Close()
+	}
+	return nil
+}
+
+func readFileAsString(filename string) (string, error) {
+	// 读取文件内容为字节数组
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+	// 将字节数组转换为字符串
+	str := string(data)
+	return str, nil
+}
+
+func writeToFile(filename string, content string) error {
+	// 将文本写入文件
+	err := os.WriteFile(filename, []byte(content), 0644)
+	if err != nil {
+		return err
+	}
 	return nil
 }
