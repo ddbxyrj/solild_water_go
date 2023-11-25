@@ -1,8 +1,0 @@
-SET CGO_ENABLED=0  
-SET GOOS=linux
-SET GOARCH=arm
-go build
-
-
-
-scp W:\ggg\hgame\新建文件夹\fromRemote\B\esp32\继电器\LC-Relay-ESP32-1R-D5\LC-Relay-ESP32-1R-D5\测试程序\土壤\soild  pi@/home/pi/Documents/soild/
