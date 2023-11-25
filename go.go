@@ -162,9 +162,7 @@ func msg(w http.ResponseWriter, req *http.Request) {
 			}
 		}
 		break
-	case "9":
-		iflog = !iflog
-		break
+
 	}
 	if savingstirng != "" {
 		savingstirng = savingstirng + " " + timeStr
@@ -198,6 +196,9 @@ func msgfromcontral(w http.ResponseWriter, req *http.Request) {
 		break
 	case "3":
 		soildsett.setUpdateClose()
+		break
+	case "4":
+		iflog = !iflog
 		break
 
 	}
